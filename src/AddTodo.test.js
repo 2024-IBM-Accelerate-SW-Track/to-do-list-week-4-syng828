@@ -45,7 +45,7 @@ test('test for no tasks text', () => {
 test('test that App component renders Task', () => {
   render(<App />);
   const inputTask = screen.getByRole('textbox', {name: /Add New Item/i})
-  const inputDate = screen.getByLabelText("Due Date")
+  const inputDate = screen.getByPlaceholderText("MM/DD/YYYY");
   const element = screen.getByRole('button', {name: /Add/i}) ;
   fireEvent.change(inputTask, { target: { value: "History Test"}})
   fireEvent.change(inputDate, { target: { value: "05/30/2023"}})
@@ -58,7 +58,7 @@ test('test that App component renders Task', () => {
  test('test that App component doesn\'t render dupicate Task', () => {
   render(<App />);
   const inputTask = screen.getByRole('textbox', {name: /Add New Item/i})
-  const inputDate = screen.getByLabelText("Due Date")
+  const inputDate = screen.getByPlaceholderText("MM/DD/YYYY");
   const element = screen.getByRole('button', {name: /Add/i}) ;
   fireEvent.change(inputTask, { target: { value: "History Test"}})
   fireEvent.change(inputDate, { target: { value: "05/30/2023"}})

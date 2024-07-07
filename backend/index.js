@@ -1,3 +1,12 @@
+const { MongoClient } = require("mongodb");
+const {env} = require("node:process");
+
+//MongoDB setup
+const url = 'mongodb://localhost:27017';
+const client = new MongoClient(url);
+const collection = client.db('toDoDB').collection('documents');
+
+//JSON setup
 const express = require("express"),
        app = express(),
        port = process.env.PORT || 8080,
@@ -8,6 +17,8 @@ const fs = require("fs").promises;
 app.use(cors());
 app.use(bodyParser.json({ extended: true }));
 app.listen(port, () => console.log("Backend server live on " + port));
+
+env.DATABASE_TYPE = "MONGODB"
 
 app.get("/", (req, res) => {
     res.send({ message: "Connected to Backend server!" });
@@ -27,12 +38,25 @@ async function addItem (request, response) {
           Current_date: curDate,
           Due_date: dueDate
         }
+        switch (env.DATABASE_TYPE) { 
+            case ("MONGODB"):
+                await collection.insertOne(newTask);
+                console.log("Successfully wrote to MongoDB");
+                break; 
+                
+            case ("JSON"):
+                const data = await fs.readFile("database.json");
+                const json = JSON.parse(data);
+                json.push(newTask);
+                await fs.writeFile("database.json", JSON.stringify(json));
+                console.log('Successfully wrote to file');
+                break; 
 
-        const data = await fs.readFile("database.json");
-        const json = JSON.parse(data);
-        json.push(newTask);
-        await fs.writeFile("database.json", JSON.stringify(json))
-        console.log('Successfully wrote to file') 
+            default:
+                console.log("Flag must be set to either MONGODB or JSON");
+                response.sendStatus(500);
+                return;
+        }
         response.sendStatus(200)
     } catch (err) {
         console.log("error: ", err)
